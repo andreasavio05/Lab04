@@ -3,11 +3,12 @@ from cabine import Cabine
 from cabine_animali import Animali
 from cabine_deluxe import Deluxe
 from csv import reader
+from operator import attrgetter
 
 class Crociera:
     def __init__(self, nome):
         """Inizializza gli attributi e le strutture dati"""
-        self.nome = nome
+        self._nome = nome
         self.passeggeri = []
         self.cabine = []
         self.animali = []
@@ -15,11 +16,11 @@ class Crociera:
 
     @property
     def nome(self):
-        return self.nome
+        return self._nome
 
     @nome.setter
     def nome(self, nuovo_nome):
-        self.nome = nuovo_nome
+        self._nome = nuovo_nome
 
     def carica_file_dati(self, file_path):
         """Carica i dati (cabine e passeggeri) dal file"""
@@ -45,32 +46,51 @@ class Crociera:
                         letti = line[1]
                         ponte = line[2]
                         prezzo = line[3]
-                        max_animali = line[4]
-                        animale = Animali(codice, letti, ponte, prezzo, max_animali)
-                        self.animali.append(animale)
-                    else:
-                        codice = line[0]
-                        letti = line[1]
-                        ponte = line[2]
-                        prezzo = line[3]
-                        tipologia = line[4]
-                        deluxe = Deluxe(codice, letti, ponte, prezzo, tipologia)
-                        self.deluxe.append(deluxe)
-
+                        extra = line[4]
+                        try:
+                            max_animali = int(extra)
+                            cabina = Animali(codice, letti, ponte, prezzo, max_animali)
+                        except ValueError:
+                            tipologia = extra
+                            cabina = Deluxe(codice, letti, ponte, prezzo, tipologia)
+                        self.cabine.append(cabina)
         except FileNotFoundError:
-            return 'File non trovato'
+            raise FileNotFoundError('File non trovato')
 
 
     def assegna_passeggero_a_cabina(self, codice_cabina, codice_passeggero):
         """Associa una cabina a un passeggero"""
-        # TODO
+        cabina = None
+        for c in self.cabine:
+            if c.codice == codice_cabina:
+                cabina = c
+                break
+        if cabina is None:
+            raise Exception('Cabina non trovata')
+
+        passeggero = None
+        for p in self.passeggeri:
+            if p.codice == codice_passeggero:
+                passeggero = p
+                break
+        if passeggero is None:
+            raise Exception('Passeggero non trovato')
+
+        if not cabina.disponibile:
+            raise Exception('Cabina non disponibile')
+        if passeggero.cabina is not None:
+            raise Exception('Passeggero già assegnato a una cabina')
+
+        cabina.disponibile = False
+        passeggero.assegna_cabina(cabina)
 
     def cabine_ordinate_per_prezzo(self):
         """Restituisce la lista ordinata delle cabine in base al prezzo"""
-        # TODO
+        return sorted(self.cabine, key=attrgetter('prezzo_base'))
 
 
     def elenca_passeggeri(self):
         """Stampa l'elenco dei passeggeri mostrando, per ognuno, la cabina a cui è associato, quando applicabile """
-        # TODO
+        for p in self.passeggeri:
+            print(p)
 

@@ -2,17 +2,15 @@ from cabine import Cabine
 
 class Deluxe(Cabine):
     def __init__(self, codice, letti, ponte, prezzo, tipologia):
-        self.codice = codice
-        self.letti = letti
-        self.ponte = ponte
-        self.prezzo = prezzo
+        super().__init__(codice, letti, ponte, prezzo)
         self.tipologia = tipologia
 
+    def prezzo_finale(self):
+        return self.prezzo_base * 1.20
+
     def __str__(self):
-        return f'{super().__str__()}, {self.tipologia}'
+        stato_extra = f'Tipologia: {self.tipologia}'
+        return f'{super().__str__()}, - {stato_extra}'
 
     def __repr__(self):
         return f'{super().__repr__()}, tipologia={self.tipologia}'
-
-    def incremento_prezzo(self):
-        self.prezzo = self.prezzo * 1.20

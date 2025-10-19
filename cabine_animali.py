@@ -5,11 +5,14 @@ class Animali(Cabine):
         super().__init__(codice, letti, ponte, prezzo)
         self.max_animali = int(max_animali)
 
+    def prezzo_finale(self):
+        return self.prezzo_base * (1 + 0.10 * self.max_animali)
+
     def __str__(self):
-        return f'{super().__str__()}, {self.max_animali}'
+        stato_extra = f'Max animali: {self.max_animali}'
+        return f'{super().__str__()}, - {stato_extra}'
 
     def __repr__(self):
         return f'{super().__repr__()}, max_animali={self.max_animali}'
 
-    def incremento_prezzo(self):
-        self.prezzo = self.prezzo * (1 + 0.10 * self.max_animali)
+
